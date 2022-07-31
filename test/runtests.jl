@@ -4,6 +4,13 @@ using Test
 second(x) = x[begin+1]
 third(x) = x[begin+2]
 
-@testset "RecursiveTiles.jl" begin
-    # Write your tests here.
+const tests = [
+    "schemes.jl",
+    "tile.jl",
+]
+
+for t ∈ tests
+    @testset "Test $t" begin
+        include(t)
+    end
 end
