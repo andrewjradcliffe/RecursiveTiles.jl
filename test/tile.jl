@@ -161,6 +161,9 @@ end
 
 
 @testset "type (in)stability" begin
+    # Inference should succeed for all the calls without an [AllowedType].
+    # For those with an [AllowedType], if in the future inference successfully proceeds
+    # to the correct type, then it is not problematic (in fact, is an improvement).
     @inferred Tile{_A, _B, Tuple{Int64}, Int64, 1} where {_A<:AbstractVector, _B} tile(x4, B)
     @inferred tile(x3, B)
     @inferred tile(x2, B)
