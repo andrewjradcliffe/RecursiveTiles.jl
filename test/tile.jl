@@ -191,4 +191,58 @@ end
 end
 
 ################
+@testset "other examples" begin
+    rs1 = [1:3, 4:6, 7:8, 9:10];
+    A1 = [1 1 10
+          2 1 10
+          3 1 10
+          1 2 10
+          2 2 10
+          3 2 10
+          1 3 10
+          2 3 10
+          1 4 10
+          2 4 10];
+    # A1 = sortslices(A1, dims=1, by=x -> (x[1], x[2], x[3]))
+    B1 = eachrow(A1);
 
+    rs2 = [1:6, 7:10];
+    A2 = [1 1 10
+          2 1 10
+          3 1 10
+          4 1 10
+          5 1 10
+          6 1 10
+          1 2 10
+          2 2 10
+          3 2 10
+          4 2 10];
+    # A2 = sortslices(A2, dims=1, by=x -> (x[1], x[2], x[3]))
+    B2 = eachrow(A2);
+
+    z1 = Scheme(sum, first)
+    z2 = ExtendScheme(z1, second)
+    z3 = ExtendScheme(z2, last)
+    z4 = ExtendScheme(z3, nothing)
+    z5 = ExtendScheme(z4, nothing)
+
+    @test rs1 == findranges(second, B1)
+    @test rs2 == findranges(second, B2)
+
+    # Basic functionality
+    y = @inferred tile(z3, B1)
+    @test all(y .== [[[12], [13], [14]], [[13], [14], [15]], [[14], [15]], [[15], [16]]])
+    @test y.I == (10,)
+    @test all(getproperty.(y, :I) .== [(1,),(2,),(3,),(4,)])
+    @test length(y) == 4
+    @test all(vcat(vcat(y...)...) .== sum(A1, dims=2))
+    @test tile(z3, B1) == tile(z4, B1) == tile(z5, B1)
+
+    y = @inferred tile(z3, B2)
+    @test all(y .== [[[12], [13], [14], [15], [16], [17]], [[13], [14], [15], [16]]])
+    @test y.I == (10,)
+    @test all(getproperty.(y, :I) .== [(1,),(2,)])
+    @test length(y) == 2
+    @test all(vcat(vcat(y...)...) .== sum(A2, dims=2))
+    @test tile(z3, B2) == tile(z4, B2) == tile(z5, B2)
+end
