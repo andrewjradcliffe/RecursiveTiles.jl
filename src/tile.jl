@@ -25,6 +25,21 @@ struct ExtendScheme{S,H} <: AbstractExtendScheme{S,H}
 end
 ExtendScheme(s) = ExtendScheme(s, nothing)
 
+macro scheme(f, g, hs...)
+    ex = :(Scheme($f, $g))
+    for h ∈ hs
+        ex = :(ExtendScheme($ex, $h))
+    end
+    ex
+end
+macro scheme(f)
+    ex = :(Scheme($f, nothing))
+end
+s = @scheme sum last third second first
+s2 = ExtendScheme(ExtendScheme(ExtendScheme(Scheme(sum, last), third), second), first)
+
+s3 = @scheme sum last x -> x[begin+2] + 1000 second first
+s4 = ExtendScheme(ExtendScheme(ExtendScheme(Scheme(sum, last), x -> x[begin+2] + 1000), second), first)
 ####
 # Allowing any type of AbstractVector -- helps to resolve type inference issues
 abstract type AbstractTile{P,T,U,S,N} <: AbstractVector{T} end
@@ -91,57 +106,3 @@ tile(f, ::Nothing, A) = Tile(tile(f, A), ())
 tile(f, g, A) = Tile(tile(f, A), g(first(A)))
 
 # _typeoffirst(f::F, A::AbstractArray{T, N}) where {F,T,N} = Base.promote_op(f, T) #typeof(f(first(A)))
-
-################
-"""
-    findrange(f, A::AbstractArray)
-
-Find the range for which `f(i₀) == f(i₀+δ)` for δ = 0,…,lastindex(A)-1;
-the search starts from `i₀=firstindex(A)`.
-
-# Examples
-```jldoctest
-julia> findrange(x -> x < 3 ? 1 : 0, 1:4)
-1:2
-
-julia> findrange(abs, -1:2:2)
-1:2
-
-julia> findrange(signbit, -5:5)
-1:5
-```
-"""
-function findrange(f::F, A::AbstractArray) where {F}
-    i₀ = firstindex(A)
-    x₀ = f(first(A))
-    for i ∈ eachindex(A)
-        x = f(A[i])
-        x == x₀ || return i₀:i-1
-    end
-    return i₀:lastindex(A)
-end
-
-"""
-    findranges(f, A::AbstractArray)
-
-# Examples
-```jldoctest
-julia> findranges(signbit, -5:5)
-2-element Vector{UnitRange{Int64}}:
- 1:5
- 6:11
-```
-"""
-function findranges(f::F, A::AbstractArray) where {F}
-    i₀, N = firstindex(A), lastindex(A)
-    B = Vector{UnitRange{Int}}()
-    while i₀ ≤ N
-        r₀ = findrange(f, view(A, i₀:N))
-        (; start, stop) = r₀
-        δ = stop - start
-        r = i₀:i₀+δ
-        push!(B, r)
-        i₀ += δ + 1
-    end
-    B
-end
