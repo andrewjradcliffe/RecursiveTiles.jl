@@ -200,14 +200,15 @@ end
           20 3 2
           10 4 2
           20 4 2];
-    B1 = eachrow(A1)
+    B1 = eachrow(A1);
     s = @scheme sum second last
     x = tile(s, B1)
     @test x == [[12, 22, 32], [13, 23, 34], [15, 25], [16, 26]]
-    x.I
+    @test x.I == (1,)
     xs = tiles(s, B1)
-    xs[1]
-    xs[2]
+    x1, x2 = xs
+    @test x1.I == (1,)
+    @test x2.I == (2,)
     # purposefully constructing something which differs by an index
     A2 = copyto!(similar(A1), A1)
     A2[:, end] .= 2
@@ -224,6 +225,29 @@ end
     @test first(setdiff([x, x, y], [x])) == y
     @test sort([y, x]) == [x, y]
     @test unique([x, y, y]) == [x, y]
+end
+
+# from README.md
+@testset "from README" begin
+    A = [10 1 1
+         20 1 1
+         30 1 1
+         10 2 1
+         20 2 1
+         30 2 2
+         10 3 2
+         20 3 2
+         10 4 2
+         20 4 2];
+    B = eachrow(A);
+    s = @scheme sum second last;
+    x = tile(s, B)
+    @test x.I == (1,)
+    @test (x...,) == ([12, 22, 32], [13, 23, 34], [15, 25], [16, 26])
+    @test getproperty.(x, :I) == [(1,), (2,), (3,), (4,)]
+    xs = tiles(s, B)
+    @test getproperty.(xs, :I) == [(1,), (2,)]
+    @test map(x -> getproperty.(x, :I), xs) == [[(1,), (2,)], [(2,), (3,), (4,)]]
 end
 
 ################
