@@ -450,12 +450,12 @@ true
 </details>
 
 ## Limitations
-As indicated in the Project.toml, this package requires at least Julia
-1.9, which provides an updated `eachslice` which returns a type which
-conforms to the `AbstractArray` interface.  In Julia 1.8 and older,
-`eachslice` returns an iterator, which does not permit efficient
-partitioning algorithms; expect the methods in this package to `throw`
-accordingly.
+As originally indicated in the Project.toml, this package requires at
+least Julia 1.9, which provides an updated `eachslice` which returns a
+type which conforms to the `AbstractArray` interface.  In Julia 1.8
+and older, `eachslice` returns an iterator, which does not permit
+efficient partitioning algorithms; expect the methods in this package
+to `throw` accordingly.
 
 Note that while it is **not** supported, it may be feasible in some
 circumstances to use this package with Julia 1.8 and older by calling

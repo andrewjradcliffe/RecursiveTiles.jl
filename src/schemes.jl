@@ -8,6 +8,8 @@
     AbstractScheme{F, G}
 
 Supertype for base functor which constructs a value and index.
+
+See also: [`AbstractExtendScheme`](@ref)
 """
 abstract type AbstractScheme{F,G} end
 (x::AbstractScheme{F,G})(A) where {F,G} = ((; f, g) = x; (f(A), g(A)))
@@ -21,7 +23,7 @@ and `g`, the transformation applied to construct the index of tile. It may be
 called directly, as shown below, but is most commonly passed to `tile` or `tiles`
 (perhaps after being wrapped in one or more `ExtendScheme`s).
 
-See also: [`ExtendScheme`](@ref)
+See also: [`ExtendScheme`](@ref), [`@scheme`](@ref)
 
 # Examples
 ```jldoctest
@@ -44,6 +46,8 @@ Scheme(f) = Scheme(f, nothing)
     AbstractExtendScheme{S, H}
 
 Supertype for extending base functor (`AbstractScheme`).
+
+See also: [`AbstractScheme`](@ref)
 """
 abstract type AbstractExtendScheme{S,H} end
 (x::AbstractExtendScheme{S,H})(A) where {S,H} = ((; s, h) = x; (s(A), h(A)))
@@ -55,6 +59,8 @@ abstract type AbstractExtendScheme{S,H} end
 Functor for extending a scheme, `s`, through the addition on a transformation, `h`,
 which constructs the index respective to each element on which it is called.
 It may be called directly, as shown below, but is most commonly passed to `tile` or `tiles`.
+
+See also: [`Scheme`](@ref), [`@scheme`](@ref)
 
 # Examples
 ```jldoctest
