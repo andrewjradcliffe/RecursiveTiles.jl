@@ -61,3 +61,63 @@ h1 h2 h3` is equivalent to
 `ExtendScheme(ExtendScheme(ExtendScheme(Scheme(f, g), h1), h2), h3)`.
 The reader will likely agree that specification via the macro is also
 much easier to read.
+
+## Recommendations
+- As a tile is defined by contiguous repetition of some value (which
+  we call an index) produced by the transformation of each slice,
+  it can often be easier to achieve a given tiling
+  by first transforming the array in the appropriate way, sorting it
+  along the appropriate dimensions by the appropriate tuple(s), then
+  finally constructing the tiling scheme. This may make it easier to
+  reason about how the index (or indices) should be presented;
+  naturally, this does not apply to the value in the base case (the
+  value returned by `f`).
+- The recursive tiling defines partitions based on the transformation
+  of each slice, not the literal values (though, we might specify a
+  literal value, e.g. `first`). This means that non-contiguous
+  occurrences of the same index belong to separate partitions. Note
+  the contrast with a `groupby` operation, which would imply that all
+  occurrences of the same index belong to the same partition.
+
+## Conventions
+In calls to both `tile` and `tiles`, `A` is assumed to be in the
+desired state, which will be treated as an `AbstractArray`. Commonly,
+this means using `eachrow`, `eachcol` or `eachslice`, such that one
+actually passes `B = eachslice(A, dims=...)`.
+
+The distinction between `Scheme` and `ExtendScheme` exists for
+signaling purposes. In the call of `tile`, a `Scheme` is always the
+base case, and signals that it should be applied to the entirety of
+`A`, whereas an `ExtendScheme` signals that `A` should be partitioned
+according to the outer index defined by `h`, and the (Extend)Scheme
+applied to each partition. Each partition consists of a contiguous
+slice, across which `h` has the same value; hence, this value serves
+as the index of the partition.
+### `tile(s, A)`
+- When `tile(s::AbstractScheme, A)` is called, it is assumed that an
+  outermost index applies to the entirety of `A`, and that the `Scheme` is
+  to be applied to the entirety of `A`.
+- When `tile(s::AbstractExtendScheme, A)` is called, it is assumed
+  that the outermost index applies to the entirety of `A`, and that
+  the inner index -- the index of the `Scheme/ExtendScheme` being
+  extended -- defines ≥ 1 ranges on `A`. These ranges are found, and
+  the entity-being-wrapped is called on each contiguous slice, thereby
+  returning a tile of inner tiles bearing an outer index given by `h`.
+- If `g::Nothing`, no index exists for the tile. If `h::Nothing`, this
+  is simply a no-op and the entity-being-wrapped is unwrapped and
+  passed to `tile`.
+- If a `Scheme` without an index (i.e. `s = Scheme(f, nothing)`) is
+  wrapped in an `ExtendScheme` with an outer index (i.e. `e =
+  ExtendScheme(s, h)`), then this is equivalent to the outer index
+  being on the `Scheme` itself, hence, this could be expressed as
+  `Scheme(f, h)`.
+### `tiles(s, A)`
+- When `tiles(s::AbstractScheme, A)` is called, the index is
+  assumed to define ≥ 1 ranges on A; these are found and the `Scheme`
+  is then called on each contiguous slice, producing a vector of
+  tiles, each of which bears the index which defined its contiguous
+  slice.
+- When `tiles(s::AbstractExtendScheme, A)` is called, the behavior is
+  the same: the outer index (defined by `h`) is assumed to define ≥ 1
+  ranges on A, which are then found and the `ExtendScheme` is then
+  called on each contiguous slice.
