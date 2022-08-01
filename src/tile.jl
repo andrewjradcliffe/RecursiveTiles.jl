@@ -12,6 +12,13 @@ Base.IndexStyle(::Type{<:AbstractTile}) = IndexLinear()
 Base.getindex(x::AbstractTile{P,T,U,S,N}, I::Vararg{Int,M}) where {P,T,U,S,N,M} = getindex(x.t, I...)
 Base.setindex!(x::AbstractTile{P,T,U,S,N}, v, I::Vararg{Int,M}) where {P,T,U,S,N,M} = x.t[I...] = v
 Base.parent(x::AbstractTile{P,T,U,S,N}) where {P,T,U,S,N} = x.t
+# If comparing two tiles, then one should consider both fields
+Base.:(==)(x::AbstractTile, y::AbstractTile) = x.t == y.t && x.I == y.I
+Base.hash(x::AbstractTile, h::UInt) = hash(x.t, hash(x.I, h))
+Base.isequal(x::AbstractTile, y::AbstractTile) = isequal(x.t, y.t) && isequal(x.I, y.I)
+# Ordering is a bit questionable.
+Base.:(<)(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t; (xt < yt || xt == yt) && x.I < y.I)
+Base.isless(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t; (isless(xt, yt) || isequal(xt, yt)) && isless(x.I, y.I))
 
 struct Tile{P<:AbstractVector{T} where {T}, T, U<:Tuple{Vararg{S,N}} where {S,N}, S,N} <: AbstractTile{P,T,U,S,N}
     t::P
