@@ -100,30 +100,29 @@ z5 = tile(ExtendScheme(x4, string ∘ first), B)
     @test y4[2] == y3[3:5]
 end
 
-@testset "::Nothing mixed at various places" begin
+@testset "::Nothing, mixed at various places" begin
     s1 = @scheme sum nothing last
     s1_1 = @scheme sum nothing last nothing
-    tile(x1, B) == tile(s1, B) == tile(s1_2, B)
+    @test tile(x1, B) == tile(s1, B) == tile(s1_2, B)
     s2 = @scheme sum nothing last third
     s2_1 = @scheme sum nothing last nothing third
     s2_2 = @scheme sum nothing last nothing nothing third
     s2_3 = @scheme sum nothing last nothing nothing third nothing
-    tile(x2, B) == tile(s2, B) == tile(s2_1, B) == tile(s2_2, B) == tile(s2_3, B)
+    @test tile(x2, B) == tile(s2, B) == tile(s2_1, B) == tile(s2_2, B) == tile(s2_3, B)
     s3 = @scheme sum nothing last third second
     s3_1 = @scheme sum nothing last nothing third second
     s3_2 = @scheme sum nothing last nothing nothing third second
     s3_3 = @scheme sum nothing last nothing nothing third nothing second
     s3_4 = @scheme sum nothing last nothing nothing third nothing second
     s3_5 = @scheme sum nothing last nothing nothing third nothing second nothing
-    tile(x3, B) == tile(s3, B) == tile(s3_1, B) == tile(s3_2, B) == tile(s3_3, B) == tile(s3_4, B) == tile(s3_5, B)
+    @test tile(x3, B) == tile(s3, B) == tile(s3_1, B) == tile(s3_2, B) == tile(s3_3, B) == tile(s3_4, B) == tile(s3_5, B)
     s4 = @scheme sum nothing last third second first
     s4_1 = @scheme sum nothing last nothing third second first
     s4_2 = @scheme sum nothing last nothing nothing third second first
     s4_3 = @scheme sum nothing last nothing nothing third nothing second first
     s4_4 = @scheme sum nothing last nothing nothing third nothing second first
     s4_5 = @scheme sum nothing last nothing nothing third nothing second nothing first
-    tile(x4, B) == tile(s4, B) == tile(s4_1, B) == tile(s4_2, B) == tile(s4_3, B) == tile(s4_4, B) == tile(s4_5, B)
-
+    @test tile(x4, B) == tile(s4, B) == tile(s4_1, B) == tile(s4_2, B) == tile(s4_3, B) == tile(s4_4, B) == tile(s4_5, B)
 end
 
 function myfunc(A)
