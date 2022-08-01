@@ -159,6 +159,9 @@ julia> x = tile(s, B)
 julia> x.I
 (1,)
 
+julia> (x...,)
+([12, 22, 32], [13, 23, 34], [15, 25], [16, 26])
+
 julia> getproperty.(x, :I)
 4-element Vector{Tuple{Int64}}:
  (1,)
