@@ -24,7 +24,7 @@ Base.isless(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t;
                                                  # (isless(xt, yt) || isequal(xt, yt)) && isless(x.I, y.I)
                                                  isless(xt, yt) || (isequal(xt, yt) && isless(x.I, y.I))
                                                  )
-# Other things which must also make sense -- or just leave the as AbstractArray?
+# Other things which must also make sense -- or just leave these as AbstractArray?
 # Base.copy(x::AbstractTile) = Tile(copy(x.t), x.I)
 
 ####

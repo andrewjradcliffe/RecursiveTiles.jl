@@ -356,6 +356,8 @@ julia> x2
 julia> x1.I, x2.I
 ((true,), (false,))
 
+julia> using OffsetArrays
+
 julia> oA = reshape(r, -2:2, -3:1)
 5×5 OffsetArray(reshape(::UnitRange{Int64}, 5, 5), -2:2, -3:1) with eltype Int64 with indices -2:2×-3:1: -12  -7  -2  3   8
  -11  -6  -1  4   9
