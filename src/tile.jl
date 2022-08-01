@@ -8,8 +8,8 @@
 abstract type AbstractTile{P,T,U,S,N} <: AbstractVector{T} end
 Base.size(x::AbstractTile{P,T,U,S,N}) where {P,T,U,S,N} = size(x.t)
 Base.IndexStyle(::Type{<:AbstractTile}) = IndexLinear()
-Base.getindex(x::AbstractTile{P,T,U,S,N}, I::Vararg{Int,M}) where {P,T,U,S,N,M} = getindex(x.t, I...)
-Base.setindex!(x::AbstractTile{P,T,U,S,N}, v, I::Vararg{Int,M}) where {P,T,U,S,N,M} = x.t[I...] = v
+Base.@propagate_inbounds Base.getindex(x::AbstractTile{P,T,U,S,N}, I::Vararg{Int,M}) where {P,T,U,S,N,M} = getindex(x.t, I...)
+Base.@propagate_inbounds Base.setindex!(x::AbstractTile{P,T,U,S,N}, v, I::Vararg{Int,M}) where {P,T,U,S,N,M} = x.t[I...] = v
 Base.parent(x::AbstractTile{P,T,U,S,N}) where {P,T,U,S,N} = x.t
 # If comparing two tiles, then one should consider both fields
 Base.:(==)(x::AbstractTile, y::AbstractTile) = x.t == y.t && x.I == y.I
