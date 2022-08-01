@@ -16,8 +16,14 @@ Base.:(==)(x::AbstractTile, y::AbstractTile) = x.t == y.t && x.I == y.I
 Base.hash(x::AbstractTile, h::UInt) = hash(x.t, hash(x.I, h))
 Base.isequal(x::AbstractTile, y::AbstractTile) = isequal(x.t, y.t) && isequal(x.I, y.I)
 # Ordering is a bit questionable.
-Base.:(<)(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t; (xt < yt || xt == yt) && x.I < y.I)
-Base.isless(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t; (isless(xt, yt) || isequal(xt, yt)) && isless(x.I, y.I))
+Base.:(<)(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t;
+                                               # (xt < yt || xt == yt) && x.I < y.I
+                                               xt < yt || (xt == yt && x.I < y.I)
+                                               )
+Base.isless(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t;
+                                                 # (isless(xt, yt) || isequal(xt, yt)) && isless(x.I, y.I)
+                                                 isless(xt, yt) || (isequal(xt, yt) && isless(x.I, y.I))
+                                                 )
 # Other things which must also make sense -- or just leave the as AbstractArray?
 # Base.copy(x::AbstractTile) = Tile(copy(x.t), x.I)
 
