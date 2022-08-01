@@ -105,3 +105,20 @@ using BenchmarkTools
 r = -1000:1000
 @benchmark findrange(signbit, $r)
 @benchmark findrange2(signbit, $r)
+
+
+# Larger arrays
+An = repeat(A, 10);
+Bn = eachrow(An);
+
+@benchmark tile($x4, $Bn)
+@benchmark myfunc($An)
+@benchmark myfunc2($An)
+
+
+An = repeat(A, 100);
+Bn = eachrow(An);
+
+@benchmark tile($x4, $Bn)
+@benchmark myfunc($An)
+@benchmark myfunc2($An)
