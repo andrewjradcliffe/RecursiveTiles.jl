@@ -132,14 +132,14 @@ as the index of the partition.
   ranges on A, which are then found and the `ExtendScheme` is then
   called on each contiguous slice.
 
-## Example
+## Examples
 As a simple example, consider a matrix in which the second and third columns contain
 indices which may be used to partition the matrix. Under normal circumstances, one
 might not use an `f` which is applied to the entire slice, but here we opt for `sum`
 as this produces distinct values which aids the illustration.
 
 ```julia
-julia> second(x) = [begin+1];
+julia> second(x) = x[begin+1];
 
 julia> A = [10 1 1
             20 1 1
@@ -197,4 +197,91 @@ julia> map(x -> getproperty.(x, :I), xs)
 2-element Vector{Vector{Tuple{Int64}}}:
  [(1,), (2,)]
  [(2,), (3,), (4,)]
+```
+
+As an example where it may be necessary to sort the array prior to
+tiling, consider the following matrix.
+
+```julia
+julia> second(x) = x[begin+1]; third(x) = x[begin+2];
+
+julia> A = [1 7 1 'a'
+            1 7 2 'a'
+            1 8 1 'b'
+            1 8 1 'c'
+            2 7 1 'c'
+            2 7 1 'a'
+            2 7 2 'b'
+            2 7 2 'c'
+            2 7 2 'b'
+            1 8 1 'b'
+            1 8 2 'a'
+            1 8 2 'c'
+            1 7 1 'b'
+            1 7 2 'a'
+            1 8 3 'a'
+            ];
+
+# Here, it is necessary to first sort the array in order to form contiguous repetitions.
+# Conversely, if the contiguous repetitions of the original array are intentional,
+# then sorting would destroy said structure.
+julia> A′ = sortslices(A, dims=1, by=x -> (x[1], x[2], x[3]))
+15×4 Matrix{Any}:
+ 1  7  1  'a'
+ 1  7  1  'b'
+ 1  7  2  'a'
+ 1  7  2  'a'
+ 1  8  1  'b'
+ 1  8  1  'c'
+ 1  8  1  'b'
+ 1  8  2  'a'
+ 1  8  2  'c'
+ 1  8  3  'a'
+ 2  7  1  'c'
+ 2  7  1  'a'
+ 2  7  2  'b'
+ 2  7  2  'c'
+ 2  7  2  'b'
+
+julia> s = @scheme last third second first;
+
+julia> B′ = eachrow(A′);
+
+julia> xs = tiles(s, B′)
+2-element Vector{Tile{Vector{Tile{Vector{Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}}, Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}}, Tile{Vector{Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}}, Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}}:
+ [[['a', 'b'], ['a', 'a']], [['b', 'c', 'b'], ['a', 'c'], ['a']]]
+ [[['c', 'a'], ['b', 'c', 'b']]]
+
+julia> x1, x2 = xs;
+
+julia> x1
+2-element Tile{Vector{Tile{Vector{Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}}, Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}}, Tile{Vector{Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}}, Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}:
+ [['a', 'b'], ['a', 'a']]
+ [['b', 'c', 'b'], ['a', 'c'], ['a']]
+
+julia> x2
+1-element Tile{Vector{Tile{Vector{Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}}, Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}}, Tile{Vector{Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}}, Tile{Vector{Char}, Char, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}:
+ [['c', 'a'], ['b', 'c', 'b']]
+
+# Let's look at the indices
+julia> x1.I, x2.I
+((1,), (2,))
+
+julia> getproperty.(x1, :I)
+2-element Vector{Tuple{Int64}}:
+ (7,)
+ (8,)
+
+julia> getproperty.(x2, :I)
+1-element Vector{Tuple{Int64}}:
+ (7,)
+
+julia> map(x -> getproperty.(x, :I), x1)
+2-element Vector{Vector{Tuple{Int64}}}:
+ [(1,), (2,)]
+ [(1,), (2,), (3,)]
+
+julia> map(x -> getproperty.(x, :I), x2)
+1-element Vector{Vector{Tuple{Int64}}}:
+ [(1,), (2,)]
 ```
