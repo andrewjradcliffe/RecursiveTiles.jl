@@ -13,7 +13,7 @@ Base.getindex(x::AbstractTile{P,T,U,S,N}, I::Vararg{Int,M}) where {P,T,U,S,N,M} 
 Base.setindex!(x::AbstractTile{P,T,U,S,N}, v, I::Vararg{Int,M}) where {P,T,U,S,N,M} = x.t[I...] = v
 Base.parent(x::AbstractTile{P,T,U,S,N}) where {P,T,U,S,N} = x.t
 
-struct Tile{P<:AbstractVector{T} where{T}, T, U<:Tuple{Vararg{S,N}} where {S,N}, S,N} <: AbstractTile{P,T,U,S,N}
+struct Tile{P<:AbstractVector{T} where {T}, T, U<:Tuple{Vararg{S,N}} where {S,N}, S,N} <: AbstractTile{P,T,U,S,N}
     t::P
     I::U
 end
@@ -35,7 +35,8 @@ tile(x::AbstractExtendScheme{S,H}, A) where {S,H} = ((; s, h) = x; Tile(tiles(s,
 tile(x::AbstractExtendScheme{S,H}, A) where {S,H<:Nothing} = ((; s, h) = x; tile(s, A))
 
 tiles(x::AbstractExtendScheme{S,H}, A) where {S,H} = ((; s, h) = x; tiles(x, A, findranges(h, A)))
-tiles(x::AbstractExtendScheme{S,H}, A, rs) where {S,H} = map(Base.Fix1(tile, x), (view(A, r) for r ∈ rs))
+tiles(x::AbstractExtendScheme{S,H}, A, rs) where {S,H} = #map(r -> tile(x, view(A, r)), rs)
+    map(Base.Fix1(tile, x), (view(A, r) for r ∈ rs))
 # Likewise: `h` promises to define ≥ 1 ranges, thus,just unwrap.
 tiles(x::AbstractExtendScheme{S,H}, A) where {S,H<:Nothing} = ((; s, h) = x; tiles(s, A))
 
