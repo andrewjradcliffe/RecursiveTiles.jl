@@ -62,6 +62,15 @@ h1 h2 h3` is equivalent to
 The reader will likely agree that specification via the macro is also
 much easier to read.
 
+The `AbstractTile` type is a subtype of `AbstractVector`, hence,
+by the interface for types returned by this package is that of
+`AbstractArray`; a small number of specializations
+(`hash`, `==`, `isequal`, `<`, `isless`) exist so as to enable
+set operations, sorting, comparison, etc. to respect the presence of
+the index held by each tile. Such specializations would not normally
+be visible to the user, and, as applied here, serve only to encourage
+the user to treat `Tile`s as `AbstractArray`s.
+
 ## Recommendations
 - As a tile is defined by contiguous repetition of some value (which
   we call an index) produced by the transformation of each slice,
