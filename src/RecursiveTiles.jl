@@ -1,7 +1,5 @@
 module RecursiveTiles
 
-using BenchmarkTools, Test
-
 export findrange, findranges
 export AbstractTile, Tile, tile, tiles
 export AbstractScheme, AbstractExtendScheme, Scheme, ExtendScheme, @scheme
