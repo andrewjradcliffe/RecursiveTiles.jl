@@ -16,8 +16,10 @@ abstract type AbstractScheme{F,G} end
 """
     Scheme(f, [g=nothing])
 
-Functor for constructing value and index respective to each element on which
-it is called.
+Functor comprised of `f`, the transformation applied to construct each element of a tile,
+and `g`, the transformation applied to construct the index of tile. It may be
+called directly, as shown below, but is most commonly passed to `tile` or `tiles`
+(perhaps after being wrapped in one or more `ExtendScheme`s).
 
 See also: [`ExtendScheme`](@ref)
 
@@ -50,8 +52,9 @@ abstract type AbstractExtendScheme{S,H} end
 """
     ExtendScheme(s, [h=nothing])
 
-Functor for extending a scheme, `s`, through the addition on an index respective to each
-element on which it is called.
+Functor for extending a scheme, `s`, through the addition on a transformation, `h`,
+which constructs the index respective to each element on which it is called.
+It may be called directly, as shown below, but is most commonly passed to `tile` or `tiles`.
 
 # Examples
 ```jldoctest
