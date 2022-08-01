@@ -133,7 +133,14 @@ as the index of the partition.
   called on each contiguous slice.
 
 ## Example
+As a simple example, consider a matrix in which the second and third columns contain
+indices which may be used to partition the matrix. Under normal circumstances, one
+might not use an `f` which is applied to the entire slice, but here we opt for `sum`
+as this produces distinct values which aids the illustration.
+
 ```julia
+julia> second(x) = [begin+1];
+
 julia> A = [10 1 1
             20 1 1
             30 1 1
@@ -148,6 +155,9 @@ julia> A = [10 1 1
 julia> B = eachrow(A);
 
 julia> s = @scheme sum second last;
+
+# This partitions by `second` only (as the call is via `tile`), yielding
+# 4 total tiles.
 
 julia> x = tile(s, B)
 4-element Tile{Vector{Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}}, Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}:
@@ -168,6 +178,10 @@ julia> getproperty.(x, :I)
  (2,)
  (3,)
  (4,)
+
+# This partitions by `last`, then partitions each resultant slice by `second`,
+# yielding 2 tiles, the first of which consists of 2 tiles and and the second
+# of which consists of 3 tiles.
 
 julia> xs = tiles(s, B)
 2-element Vector{Tile{Vector{Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}}, Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}}:
