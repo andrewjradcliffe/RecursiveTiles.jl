@@ -110,10 +110,12 @@ The distinction between `Scheme` and `ExtendScheme` exists for
 signaling purposes. In the call to `tile`, a `Scheme` is always the
 base case, and signals that it should be applied to the entirety of
 `A`, whereas an `ExtendScheme` signals that `A` should be partitioned
-according to the outer index defined by `h`, and the (Extend)Scheme
-applied to each partition. Each partition consists of a contiguous
-range, across which `h` has the same value; hence, this value serves
-as the index of the partition.
+according to the inner index defined by the entity-being wrapped
+(`e.s.g` if `ExtendScheme(Scheme)`, or `e.s.h` if
+`ExtendScheme(ExtendScheme(...))`), and the `Scheme`/`ExtendScheme` applied to
+each partition. Each partition consists of a contiguous range, across
+which `g` (or `h`) has the same value; hence, this value serves as the index of
+the partition.
 ### `tile(s, A)`
 - When `tile(s::AbstractScheme, A)` is called, it is assumed that an
   outermost index applies to the entirety of `A`, and that the `Scheme` is
