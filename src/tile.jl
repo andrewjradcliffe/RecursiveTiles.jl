@@ -4,7 +4,6 @@
 #
 #
 ############################################################################################
-####
 # Allowing any type of AbstractVector -- helps to resolve type inference issues
 abstract type AbstractTile{P,T,U,S,N} <: AbstractVector{T} end
 Base.size(x::AbstractTile{P,T,U,S,N}) where {P,T,U,S,N} = size(x.t)
@@ -19,7 +18,10 @@ Base.isequal(x::AbstractTile, y::AbstractTile) = isequal(x.t, y.t) && isequal(x.
 # Ordering is a bit questionable.
 Base.:(<)(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t; (xt < yt || xt == yt) && x.I < y.I)
 Base.isless(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t; (isless(xt, yt) || isequal(xt, yt)) && isless(x.I, y.I))
+# Other things which must also make sense -- or just leave the as AbstractArray?
+# Base.copy(x::AbstractTile) = Tile(copy(x.t), x.I)
 
+####
 struct Tile{P<:AbstractVector{T} where {T}, T, U<:Tuple{Vararg{S,N}} where {S,N}, S,N} <: AbstractTile{P,T,U,S,N}
     t::P
     I::U
