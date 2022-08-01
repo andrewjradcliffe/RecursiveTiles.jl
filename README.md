@@ -62,6 +62,7 @@ h1 h2 h3` is equivalent to
 The reader will likely agree that specification via the macro is also
 much easier to read.
 
+## Type Interface
 The `AbstractTile` type is a subtype of `AbstractVector`, hence,
 by the interface for types returned by this package is that of
 `AbstractArray`; a small number of specializations
