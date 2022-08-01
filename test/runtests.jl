@@ -1,5 +1,6 @@
 using RecursiveTiles
 using Test
+using OffsetArrays
 
 second(x) = x[begin+1]
 third(x) = x[begin+2]
