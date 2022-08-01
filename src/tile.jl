@@ -5,6 +5,13 @@
 #
 ############################################################################################
 # Allowing any type of AbstractVector -- helps to resolve type inference issues
+
+"""
+    AbstractTile{P,T,U,S,N} <: AbstractVector{T}
+
+Supertype for tile abstraction, which is a struct containing an `P<:AbstractVector{T}`
+and an index `U<:Tuple{Vararg{S,N}}`.
+"""
 abstract type AbstractTile{P,T,U,S,N} <: AbstractVector{T} end
 Base.size(x::AbstractTile{P,T,U,S,N}) where {P,T,U,S,N} = size(x.t)
 Base.IndexStyle(::Type{<:AbstractTile}) = IndexLinear()
@@ -28,6 +35,13 @@ Base.isless(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t;
 # Base.copy(x::AbstractTile) = Tile(copy(x.t), x.I)
 
 ####
+"""
+    Tile{P,T,U,S,N} <: AbstractTile{P,T,U,S,N}
+
+Concrete tile abstraction, which specifies an index `U<:Tuple{Vararg{S,N}} where {S,N}`.
+
+See also: [`AbstractTile`](@ref)
+"""
 struct Tile{P<:AbstractVector{T} where {T}, T, U<:Tuple{Vararg{S,N}} where {S,N}, S,N} <: AbstractTile{P,T,U,S,N}
     t::P
     I::U
@@ -37,6 +51,7 @@ Tile(t::P, I::Vararg{S,N}) where {P<:AbstractVector{T}} where {T} where {S,N} = 
 Tile(t::P, ::Tuple{}) where {P<:AbstractVector{T}} where {T} = Tile{P, T, Tuple{}, Tuple{}, 0}(t, ())
 
 ####
+
 tile(x::AbstractScheme{F,G}, A) where {F,G} = ((; f, g) = x; tile(f, g, A))
 
 tiles(x::AbstractScheme{F,G}, A) where {F,G} = ((; f, g) = x; tiles(x, A, findranges(g, A)))
@@ -86,3 +101,74 @@ tile(f, ::Nothing, A) = Tile(tile(f, A), ())
 tile(f, g, A) = Tile(tile(f, A), g(first(A)))
 
 # _typeoffirst(f::F, A::AbstractArray{T, N}) where {F,T,N} = Base.promote_op(f, T) #typeof(f(first(A)))
+
+
+"""
+    tile(s::AbstractScheme, A)
+    tile(s::AbstractExtendScheme, A)
+
+Construct a `Tile` by applying the scheme, `s`, to the entirety of `A`.
+
+The distinction between `AbstractScheme` and `AbstractExtendScheme` exists for
+signaling purposes. An `AbstractScheme` is always the base case, and signals
+application to the entirety of `A`, whereas an `ExtendScheme` signals that `A`
+should first be partitioned according to the inner index defined by the entity-being wrapped
+(`e.s.g` if `ExtendScheme(Scheme)`, or `e.s.h` if `ExtendScheme(ExtendScheme(...))`),
+and the `Scheme`/`ExtendScheme` applied to each partition. Each partition consists of a
+contiguous range, across which `g` (or `h`) has the same value; hence, this value serves as
+the index of the partition.
+
+See also: [`tiles`](@ref)
+
+# Examples
+```jldoctest
+julia> A = [10 1 1
+            20 1 1
+            30 1 1
+            10 2 1
+            20 2 1
+            30 2 2
+            10 3 2
+            20 3 2
+            10 4 2
+            20 4 2];
+
+julia> B = eachrow(A);
+
+julia> s = @scheme sum x -> x[begin+1] last;
+
+
+julia> x = tile(s, B)
+4-element Tile{Vector{Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}}, Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}:
+ [12, 22, 32]
+ [13, 23, 34]
+ [15, 25]
+ [16, 26]
+```
+"""
+function tile end
+
+"""
+    tiles(s::AbstractScheme, A)
+    tiles(s::AbstractExtendScheme, A)
+
+Construct 1 or more `Tiles` by partitioning `A` according to the index
+(`s.g` if `AbstractScheme`, `s.h` if `AbstractExtendScheme`), then calling
+`tile(s, B)` on each partition `B`. Returns a vector of tiles, each of which
+bears the index that defined the partition.
+
+See also: [`tile`](@ref)
+
+# Examples
+```jldoctest
+julia> A = reshape(-12:12, 5, 5); B = eachcol(A);
+
+julia> s = @scheme sum signbit ∘ (x -> x[begin+2]);
+
+julia> tiles(s, B)
+2-element Vector{Tile{Vector{Int64}, Int64, Tuple{Bool}, Bool, 1}}:
+ [-50, -25]
+ [0, 25, 50]
+```
+"""
+function tiles end
