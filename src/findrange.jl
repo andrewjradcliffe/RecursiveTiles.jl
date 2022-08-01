@@ -7,8 +7,8 @@
 """
     findrange(f, A::AbstractArray)
 
-Find the range for which `f(i₀) == f(i₀+δ)` for δ = 0,…,lastindex(A)-1;
-the search starts from `i₀=firstindex(A)`.
+Find the range for which `isequal(f(A[i₀]), f(A[i₀+δ]))` is true;
+the search starts from `i₀=firstindex(A)` and proceeds through δ = 0,…,lastindex(A)-1.
 
 # Examples
 ```jldoctest
@@ -27,13 +27,18 @@ function findrange(f::F, A::AbstractArray) where {F}
     x₀ = f(first(A))
     for i ∈ eachindex(A)
         x = f(A[i])
-        x == x₀ || return i₀:i-1
+        # x == x₀ || return i₀:i-1
+        isequal(x, x₀) || return i₀:i-1
     end
     return i₀:lastindex(A)
 end
 
 """
     findranges(f, A::AbstractArray)
+
+Find each range on `eachindex(A)` over which `isequal(f(A[i]), f(A[i+δ]))` is true,
+with the first range starting at `i=firstindex(A)`; subsequent ranges start from
+`i=i+δⱼ+1` where `δⱼ` is the difference between the stop and start of the previous range.
 
 # Examples
 ```jldoctest
