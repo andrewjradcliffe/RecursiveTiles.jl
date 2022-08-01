@@ -189,6 +189,43 @@ end
     #
 end
 
+@testset "comparison and uniqueness" begin
+    A1 = [10 1 1
+          20 1 1
+          30 1 1
+          10 2 1
+          20 2 1
+          30 2 2
+          10 3 2
+          20 3 2
+          10 4 2
+          20 4 2];
+    B1 = eachrow(A1)
+    s = @scheme sum second last
+    x = tile(s, B1)
+    @test x == [[12, 22, 32], [13, 23, 34], [15, 25], [16, 26]]
+    x.I
+    xs = tiles(s, B1)
+    xs[1]
+    xs[2]
+    # purposefully constructing something which differs by an index
+    A2 = copyto!(similar(A1), A1)
+    A2[:, end] .= 2
+    B2 = eachrow(A2)
+    y = Tile(tiles(Scheme(sum, second), B1), (2,))
+    #
+    @test parent(x) == y
+    @test !(parent(x) < y)
+    @test x != y
+    @test x < y
+    @test parent(x) == parent(y)
+    @test !isequal(x, y)
+    @test allunique([x, y])
+    @test first(setdiff([x, x, y], [x])) == y
+    @test sort([y, x]) == [x, y]
+    @test unique([x, y, y]) == [x, y]
+end
+
 ################
 @testset "other examples" begin
     rs1 = [1:3, 4:6, 7:8, 9:10];
