@@ -228,7 +228,7 @@ end
 end
 
 # from README.md
-@testset "from README" begin
+@testset "from README, Example 1" begin
     A = [10 1 1
          20 1 1
          30 1 1
@@ -248,6 +248,55 @@ end
     xs = tiles(s, B)
     @test getproperty.(xs, :I) == [(1,), (2,)]
     @test map(x -> getproperty.(x, :I), xs) == [[(1,), (2,)], [(2,), (3,), (4,)]]
+end
+
+@testset "from README, Example 2" begin
+    A = [1 7 1 'a'
+         1 7 2 'a'
+         1 8 1 'b'
+         1 8 1 'c'
+         2 7 1 'c'
+         2 7 1 'a'
+         2 7 2 'b'
+         2 7 2 'c'
+         2 7 2 'b'
+         1 8 1 'b'
+         1 8 2 'a'
+         1 8 2 'c'
+         1 7 1 'b'
+         1 7 2 'a'
+         1 8 3 'a'
+         ];
+    # Here, it is necessary to first sort the array in order to form contiguous repetitions.
+    # Conversely, if the contiguous repetitions of the original array are identical,
+    # then sorting would destroy said structure.
+    A′ = sortslices(A, dims=1, by=x -> (x[1], x[2], x[3]))
+    s = @scheme last third second first
+    B′ = eachrow(A′)
+    xs = tiles(s, B′)
+    x1, x2 = xs
+    @test length(xs) == 2
+    @test sum.(x -> sum(length, x), xs) == [10, 5]
+    @test map.(x -> sum(length, x), xs) == [[4, 6], [5]]
+    @test map.(Broadcast.BroadcastFunction(length), xs) == [[[2, 2], [3, 2, 1]], [[2, 3]]]
+    # first tile
+    @test x1[1] == [['a', 'b'], ['a', 'a']]
+    @test x1[2] == [['b', 'c', 'b'], ['a', 'c'], ['a']]
+    @test length(x1) == 2
+    @test x1.I == (1,)
+    @test getproperty.(x1, :I) == [(7,), (8,)]
+    x1_1, x1_2 = x1
+    @test getproperty.(x1_1, :I) == [(1,),(2,)]
+    @test getproperty.(x1_2, :I) == [(1,),(2,),(3,)]
+    @test length.(x1_1) == [2, 2]
+    @test length.(x1_2) == [3, 2, 1]
+    # second tile
+    @test x2[1] == [['c', 'a'], ['b', 'c', 'b']]
+    @test x2.I == (2,)
+    @test getproperty.(x2, :I) == [(7,)]
+    x2_1 = x2[1]
+    @test getproperty.(x2_1, :I) == [(1,),(2,)]
+    @test length.(x2_1) == [2, 3]
 end
 
 ################
