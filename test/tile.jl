@@ -103,7 +103,7 @@ end
 @testset "::Nothing, mixed at various places" begin
     s1 = @scheme sum nothing last
     s1_1 = @scheme sum nothing last nothing
-    @test tile(x1, B) == tile(s1, B) == tile(s1_2, B)
+    @test tile(x1, B) == tile(s1, B) == tile(s1_1, B)
     s2 = @scheme sum nothing last third
     s2_1 = @scheme sum nothing last nothing third
     s2_2 = @scheme sum nothing last nothing nothing third
