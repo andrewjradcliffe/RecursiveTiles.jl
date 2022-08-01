@@ -457,7 +457,7 @@ conforms to the `AbstractArray` interface.  In Julia 1.8 and older,
 partitioning algorithms; expect the methods in this package to `throw`
 accordingly.
 
-Note that while it is *not* supported, it may be feasible in some
+Note that while it is **not** supported, it may be feasible in some
 circumstances to use this package with Julia 1.8 and older by calling
 `collect` on the iterator returned by `eachslice`. Lack of support
 side, the author does not recommend such a practice due to the
