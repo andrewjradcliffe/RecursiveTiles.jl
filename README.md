@@ -130,3 +130,53 @@ as the index of the partition.
   the same: the outer index (defined by `h`) is assumed to define ≥ 1
   ranges on A, which are then found and the `ExtendScheme` is then
   called on each contiguous slice.
+
+## Example
+```julia
+julia> A = [10 1 1
+            20 1 1
+            30 1 1
+            10 2 1
+            20 2 1
+            30 2 2
+            10 3 2
+            20 3 2
+            10 4 2
+            20 4 2];
+
+julia> B = eachrow(A);
+
+julia> s = @scheme sum second last;
+
+julia> x = tile(s, B)
+4-element Tile{Vector{Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}}, Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}:
+ [12, 22, 32]
+ [13, 23, 34]
+ [15, 25]
+ [16, 26]
+
+julia> x.I
+(1,)
+
+julia> getproperty.(x, :I)
+4-element Vector{Tuple{Int64}}:
+ (1,)
+ (2,)
+ (3,)
+ (4,)
+
+julia> xs = tiles(s, B)
+2-element Vector{Tile{Vector{Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}}, Tile{Vector{Int64}, Int64, Tuple{Int64}, Int64, 1}, Tuple{Int64}, Int64, 1}}:
+ [[12, 22, 32], [13, 23]]
+ [[34], [15, 25], [16, 26]]
+
+julia> getproperty.(xs, :I)
+2-element Vector{Tuple{Int64}}:
+ (1,)
+ (2,)
+
+julia> map(x -> getproperty.(x, :I), xs)
+2-element Vector{Vector{Tuple{Int64}}}:
+ [(1,), (2,)]
+ [(2,), (3,), (4,)]
+```
