@@ -144,11 +144,16 @@ as the index of the partition.
   called on each contiguous slice.
 
 ## Examples
+### Simple
+
+<details>
+ <summaryClick me!></summary>
+<p>
+
 As a simple example, consider a matrix in which the second and third columns contain
 indices which may be used to partition the matrix. Under normal circumstances, one
 might not use an `f` which is applied to the entire slice, but here we opt for `sum`
 as this produces distinct values which aids the illustration.
-
 ```julia
 julia> second(x) = x[begin+1];
 
@@ -209,10 +214,17 @@ julia> map(x -> getproperty.(x, :I), xs)
  [(1,), (2,)]
  [(2,), (3,), (4,)]
 ```
+</p>
+</details>
+
+### Sort before tiling
+
+<details>
+ <summaryClick me! ></summary>
+<p>
 
 As an example where it may be necessary to sort the array prior to
 tiling, consider the following matrix.
-
 ```julia
 julia> second(x) = x[begin+1]; third(x) = x[begin+2];
 
@@ -296,3 +308,5 @@ julia> map(x -> getproperty.(x, :I), x2)
 1-element Vector{Vector{Tuple{Int64}}}:
  [(1,), (2,)]
 ```
+</p>
+</details>
