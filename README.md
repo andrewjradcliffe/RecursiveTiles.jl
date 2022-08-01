@@ -55,7 +55,7 @@ partition `B`, ultimately returning a tile with outer index given by
 This proceeds recursively, such that an arbitrary number of additional
 indices may be added by extending via `ExtendScheme` wraps.
 
-As it can be tedious to write out each `ExtendScheme` wrap, the
+It can be tedious to write out each `ExtendScheme` wrap, hence,
 `@scheme` macro is provided to facilitate this, such that `@scheme f g
 h1 h2 h3` is equivalent to
 `ExtendScheme(ExtendScheme(ExtendScheme(Scheme(f, g), h1), h2), h3)`.
