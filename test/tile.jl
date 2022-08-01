@@ -299,6 +299,45 @@ end
     @test length.(x2_1) == [2, 3]
 end
 
+@testset "from README, Example 3" begin
+    r = -12:12
+    A = reshape(r, 5, 5)
+    B = eachcol(A)
+    # s = @scheme x -> sum(abs, x) signbit ∘ third
+    # xs = tiles(s, B)
+    s = @scheme sum signbit ∘ third
+    xs = tiles(s, B)
+    x1, x2 = xs;
+    @test (x1.I, x2.I) == ((true,), (false,))
+    @test length.(xs) == [2, 3]
+    @test x1 == [-50, -25]
+    @test x2 == [0, 25, 50]
+    oA = reshape(r, -2:2, -3:1)
+    oB = eachcol(oA)
+    @test xs == tiles(s, oB)
+    #
+    r = -13:13
+    A = reshape(r, 3, 3,3)
+    B = eachslice(A, dims=(2,3))
+    s = @scheme sum signbit ∘ second
+    xs = tiles(s, B)
+    @test length.(xs) == [4, 5]
+    x1, x2 = xs
+    @test x1 == sum.(B[1:4])
+    @test x2 == sum.(B[5:9])
+    @test all(vcat(xs...) .== vec(sum(A, dims=1)))
+    #
+    s = @scheme sum x -> abs(sum(x)) > 9
+    xs = tiles(s, B)
+    @test length.(xs) == [3, 3, 3]
+    @test getproperty.(xs, :I) == [(true,), (false,), (true,)]
+    x1, x2, x3 = xs
+    @test x1 == sum.(B[1:3])
+    @test x2 == sum.(B[4:6])
+    @test x3 == sum.(B[7:9])
+    @test all(vcat(xs...) .== vec(sum(A, dims=1)))
+end
+
 ################
 @testset "other examples" begin
     rs1 = [1:3, 4:6, 7:8, 9:10];
