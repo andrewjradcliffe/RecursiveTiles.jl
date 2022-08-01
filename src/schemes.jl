@@ -104,8 +104,8 @@ macro scheme(f, g, hs...)
     for h ∈ hs
         ex = :(ExtendScheme($ex, $h))
     end
-    ex
+    esc(ex)
 end
 macro scheme(f)
-    ex = :(Scheme($f, nothing))
+    esc(:(Scheme($f, nothing)))
 end
