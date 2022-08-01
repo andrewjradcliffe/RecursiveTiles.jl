@@ -310,3 +310,139 @@ julia> map(x -> getproperty.(x, :I), x2)
 ```
 </p>
 </details>
+
+### Various `AbstractArray`s; multidimensional
+<details>
+ <summaryClick me! ></summary>
+<p>
+
+The methods apply are agnostic to the particular subtype of `AbstractArray`, as demonstrated by
+the somewhat contrived examples below.
+```julia
+julia> second(x) = x[begin+1]; third(x) = x[begin+2];
+
+julia> r = -12:12;
+
+julia> A = reshape(r, 5, 5)
+5×5 reshape(::UnitRange{Int64}, 5, 5) with eltype Int64:
+ -12  -7  -2  3   8
+ -11  -6  -1  4   9
+ -10  -5   0  5  10
+  -9  -4   1  6  11
+  -8  -3   2  7  12
+
+julia> B = eachcol(A);
+
+julia> s = @scheme sum signbit ∘ third;
+
+julia> xs = tiles(s, B)
+2-element Vector{Tile{Vector{Int64}, Int64, Tuple{Bool}, Bool, 1}}:
+ [-50, -25]
+ [0, 25, 50]
+
+julia> x1, x2 = xs;
+
+julia> x1
+2-element Tile{Vector{Int64}, Int64, Tuple{Bool}, Bool, 1}:
+ -50
+ -25
+
+julia> x2
+3-element Tile{Vector{Int64}, Int64, Tuple{Bool}, Bool, 1}:
+  0
+ 25
+ 50
+
+julia> x1.I, x2.I
+((true,), (false,))
+
+julia> oA = reshape(r, -2:2, -3:1)
+5×5 OffsetArray(reshape(::UnitRange{Int64}, 5, 5), -2:2, -3:1) with eltype Int64 with indices -2:2×-3:1: -12  -7  -2  3   8
+ -11  -6  -1  4   9
+ -10  -5   0  5  10
+  -9  -4   1  6  11
+  -8  -3   2  7  12
+
+julia> ob = eachcol(oA);
+
+julia> xs == tiles(s, oB)
+true
+
+# More than one dimension; this keeps the partition function simple for clarity
+
+julia> r = -13:13
+-13:13
+
+julia> A = reshape(r, 3, 3,3)
+3×3×3 reshape(::UnitRange{Int64}, 3, 3, 3) with eltype Int64:
+[:, :, 1] =
+ -13  -10  -7
+ -12   -9  -6
+ -11   -8  -5
+
+[:, :, 2] =
+ -4  -1  2
+ -3   0  3
+ -2   1  4
+
+[:, :, 3] =
+ 5   8  11
+ 6   9  12
+ 7  10  13
+
+julia> B = eachslice(A, dims=(2,3))
+3×3 Slices{Base.ReshapedArray{Int64, 3, UnitRange{Int64}, Tuple{}}, Tuple{Colon, Int64, Int64}, Tuple{Base.OneTo{Int64}, Base.OneTo{Int64}}, SubArray{Int64, 1, Base.ReshapedArray{Int64, 3, UnitRange{Int64}, Tuple{}}, Tuple{Base.Slice{Base.OneTo{Int64}}, Int64, Int64}, true}, 2}:
+ [-13, -12, -11]  [-4, -3, -2]  [5, 6, 7]
+ [-10, -9, -8]    [-1, 0, 1]    [8, 9, 10]
+ [-7, -6, -5]     [2, 3, 4]     [11, 12, 13]
+
+julia> s = @scheme sum signbit ∘ second;
+
+julia> xs = tiles(s, B)
+2-element Vector{Tile{Vector{Int64}, Int64, Tuple{Bool}, Bool, 1}}:
+ [-36, -27, -18, -9]
+ [0, 9, 18, 27, 36]
+
+julia> x1, x2 = xs;
+
+julia> x1 == sum.(B[1:4])
+true
+
+julia> x2 == sum.(B[5:9])
+true
+
+julia> vcat(xs...) == vec(sum(A, dims=1))
+true
+
+# And one last example, just for fun
+
+julia> s = @scheme sum x -> abs(sum(x)) > 9;
+
+julia> xs = tiles(s, B)
+3-element Vector{Tile{Vector{Int64}, Int64, Tuple{Bool}, Bool, 1}}:
+ [-36, -27, -18]
+ [-9, 0, 9]
+ [18, 27, 36]
+
+julia> getproperty.(xs, :I)
+3-element Vector{Tuple{Bool}}:
+ (1,)
+ (0,)
+ (1,)
+
+julia> x1, x2, x3 = xs;
+
+julia> x1 == sum.(B[1:3])
+true
+
+julia> x2 == sum.(B[4:6])
+true
+
+julia> x3 == sum.(B[7:9])
+true
+
+julia> vcat(xs...) == vec(sum(A, dims=1))
+true
+```
+</p>
+</details>
