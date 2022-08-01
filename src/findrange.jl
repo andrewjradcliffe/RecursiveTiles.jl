@@ -46,6 +46,12 @@ julia> findranges(signbit, -5:5)
 2-element Vector{UnitRange{Int64}}:
  1:5
  6:11
+
+julia> findranges(identity, [0, missing, missing, 1, 1])
+3-element Vector{UnitRange{Int64}}:
+ 1:1
+ 2:3
+ 4:5
 ```
 """
 function findranges(f::F, A::AbstractArray) where {F}
