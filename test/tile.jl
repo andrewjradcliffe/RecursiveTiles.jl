@@ -246,3 +246,12 @@ end
     @test all(vcat(vcat(y...)...) .== sum(A2, dims=2))
     @test tile(z3, B2) == tile(z4, B2) == tile(z5, B2)
 end
+
+@testset "interesting cases" begin
+    s = @scheme identity signbit
+    xs = tiles(s, -5:5)
+    @test xs[1].I == (true,)
+    @test xs[1] == collect(-5:-1)
+    @test xs[2].I == (false,)
+    @test xs[2] == collect(0:5)
+end
