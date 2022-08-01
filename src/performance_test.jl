@@ -101,3 +101,7 @@ using BenchmarkTools
 @benchmark tile($x4, $B)
 @benchmark myfunc($A)
 @benchmark myfunc2($A)
+
+r = -1000:1000
+@benchmark findrange(signbit, $r)
+@benchmark findrange2(signbit, $r)
