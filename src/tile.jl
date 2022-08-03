@@ -33,6 +33,18 @@ Base.isless(x::AbstractTile, y::AbstractTile) = (xt = x.t; yt = y.t;
                                                  )
 # Other things which must also make sense -- or just leave these as AbstractArray?
 # Base.copy(x::AbstractTile) = Tile(copy(x.t), x.I)
+# Method forwarding to parent
+Base.deleteat!(x::AbstractTile{P,T,U,S,N}, I) where {P,T,U,S,N} = deleteat!(parent(x), I)
+Base.insert!(x::AbstractTile{P,T,U,S,N}, I, item) where {P,T,U,S,N} = insert!(parent(x), I, item)
+Base.pop!(x::AbstractTile{P,T,U,S,N}) where {P,T,U,S,N} = pop!(parent(x))
+Base.popat!(x::AbstractTile{P,T,U,S,N}, I) where {P,T,U,S,N} = popat!(parent(x), I)
+Base.popat!(x::AbstractTile{P,T,U,S,N}, I, default) where {P,T,U,S,N} = popat!(parent(x), I, default)
+Base.resize!(x::AbstractTile{P,T,U,S,N}, n) where {P,T,U,S,N} = resize!(parent(x), n)
+Base.sizehint!(x::AbstractTile{P,T,U,S,N}, n) where {P,T,U,S,N} = sizehint!(parent(x), n)
+Base.pushfirst!(x::AbstractTile{P,T,U,S,N}, item) where {P,T,U,S,N} = pushfirst!(parent(x), item)
+Base.prepend!(x::AbstractTile{P,T,U,S,N}, item) where {P,T,U,S,N} = prepend!(parent(x), item)
+Base.splice!(x::AbstractTile{P,T,U,S,N}, I) where {P,T,U,S,N} = splice!(parent(x), I)
+Base.splice!(x::AbstractTile{P,T,U,S,N}, I, ins) where {P,T,U,S,N} = splice!(parent(x), I, ins)
 
 ####
 """
