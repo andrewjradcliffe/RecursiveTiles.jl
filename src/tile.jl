@@ -46,6 +46,9 @@ Base.prepend!(x::AbstractTile{P,T,U,S,N}, item) where {P,T,U,S,N} = prepend!(par
 Base.splice!(x::AbstractTile{P,T,U,S,N}, I) where {P,T,U,S,N} = splice!(parent(x), I)
 Base.splice!(x::AbstractTile{P,T,U,S,N}, I, ins) where {P,T,U,S,N} = splice!(parent(x), I, ins)
 
+Base.unique!(f, x::AbstractTile) = unique!(f, parent(x))
+Base.empty!(x::AbstractTile) = empty!(parent(x))
+
 ####
 """
     Tile{P,T,U,S,N} <: AbstractTile{P,T,U,S,N}
