@@ -1,6 +1,6 @@
 module RecursiveTiles
 
-export findrange, findranges
+export findrange, findranges, findfirstrange, findlastrange
 export AbstractTile, Tile, tile, tiles
 export AbstractScheme, AbstractExtendScheme, Scheme, ExtendScheme, @scheme
 
