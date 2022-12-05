@@ -93,3 +93,88 @@ end
 #     end
 #     B
 # end
+
+"""
+    findfirstrange(predicate, A::AbstractArray)
+
+Return the first consecutive index range for which the `predicate` returns `true`.
+Return `nothing` if there is no such range.
+
+# Examples
+```jldoctest
+julia> findfirstrange(isone, [2, 3, 1, 1, 1, 4, 1])
+3:5
+
+julia> findfirstrange(isone, [2, 3, 4, 1])
+4:4
+
+julia> findfirstrange(signbit, -5:5)
+1:5
+```
+"""
+function findfirstrange(f::F, A::AbstractArray) where {F}
+    i₀ = firstindex(A)
+    iₗ = lastindex(A)
+    x₀ = f(A[i₀])
+    if x₀
+        for i ∈ i₀+1:iₗ
+            x = f(A[i])
+            x || return i₀:i-1
+        end
+        return i₀:iₗ
+    else
+        while !x₀ && i₀ < iₗ
+            i₀ += 1
+            x₀ = f(A[i₀])
+        end
+        x₀ || return nothing
+        for i ∈ i₀+1:iₗ
+            x = f(A[i])
+            x || return i₀:i-1
+        end
+        return i₀:iₗ
+    end
+end
+
+"""
+    findlastrange(predicate, A::AbstractArray)
+
+Return the last consecutive index range for which the `predicate` returns `true`.
+Return `nothing` if there is no such range.
+
+# Examples
+```jldoctest
+julia> findlastrange(isone, [2, 3, 1, 1, 1, 4, 1])
+7:7
+
+julia> findlastrange(isone, [2, 3, 4, 1])
+4:4
+
+julia> findlastrange(signbit, -5:5)
+1:5
+```
+"""
+function findlastrange(f::F, A::AbstractArray) where {F}
+    i₀ = firstindex(A)
+    iₗ = lastindex(A)
+    xₗ = f(A[iₗ])
+    if xₗ
+        for i ∈ iₗ-1:-1:i₀
+            x = f(A[i])
+            x || return i+1:iₗ
+        end
+        return i₀:iₗ
+    else
+        while !xₗ && iₗ > i₀
+            iₗ -= 1
+            xₗ = f(A[iₗ])
+        end
+        xₗ || return nothing
+        for i ∈ iₗ-1:-1:i₀
+            x = f(A[i])
+            x || return i+1:iₗ
+        end
+        return i₀:iₗ
+    end
+end
+
