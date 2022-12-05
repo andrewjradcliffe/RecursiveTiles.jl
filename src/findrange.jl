@@ -116,24 +116,16 @@ function findfirstrange(f::F, A::AbstractArray) where {F}
     i₀ = firstindex(A)
     iₗ = lastindex(A)
     x₀ = f(A[i₀])
-    if x₀
-        for i ∈ i₀+1:iₗ
-            x = f(A[i])
-            x || return i₀:i-1
-        end
-        return i₀:iₗ
-    else
-        while !x₀ && i₀ < iₗ
-            i₀ += 1
-            x₀ = f(A[i₀])
-        end
-        x₀ || return nothing
-        for i ∈ i₀+1:iₗ
-            x = f(A[i])
-            x || return i₀:i-1
-        end
-        return i₀:iₗ
+    while !x₀ && i₀ < iₗ
+        i₀ += 1
+        x₀ = f(A[i₀])
     end
+    x₀ || return nothing
+    for i ∈ i₀+1:iₗ
+        x = f(A[i])
+        x || return i₀:i-1
+    end
+    return i₀:iₗ
 end
 
 """
@@ -158,23 +150,15 @@ function findlastrange(f::F, A::AbstractArray) where {F}
     i₀ = firstindex(A)
     iₗ = lastindex(A)
     xₗ = f(A[iₗ])
-    if xₗ
-        for i ∈ iₗ-1:-1:i₀
-            x = f(A[i])
-            x || return i+1:iₗ
-        end
-        return i₀:iₗ
-    else
-        while !xₗ && iₗ > i₀
-            iₗ -= 1
-            xₗ = f(A[iₗ])
-        end
-        xₗ || return nothing
-        for i ∈ iₗ-1:-1:i₀
-            x = f(A[i])
-            x || return i+1:iₗ
-        end
-        return i₀:iₗ
+    while !xₗ && iₗ > i₀
+        iₗ -= 1
+        xₗ = f(A[iₗ])
     end
+    xₗ || return nothing
+    for i ∈ iₗ-1:-1:i₀
+        x = f(A[i])
+        x || return i+1:iₗ
+    end
+    return i₀:iₗ
 end
 
